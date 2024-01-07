@@ -294,43 +294,61 @@ class panel extends JPanel {
             parking.setLayout(new GridLayout(2, 10, 15, 15));
             
             String linea[] = new String[20];
-            ArrayList<String> usuario = new ArrayList<>();
+            boolean[] lista = new boolean[20];
+                String[] matriculalista = new String[20];
+            ArrayList<Usuario> usuario = new ArrayList<>();
             try {
                 Connection c1 = DriverManager.getConnection(url, username, password);
                 Statement stm1 = c1.createStatement();
                 ResultSet rs1 = stm1.executeQuery("Select * from Plazas_Garaje");
-
+                
                 int cont = 0;
                 while (rs1.next()) {
                     linea[cont] = rs1.getString("TipoDePlaza");
+                    lista[cont] = rs1.getBoolean("Onuse");
+                    matriculalista[cont] = rs1.getString("Matricula");
                     cont++;
+
+                }
+                for (int i = 0; i < 20; i++) {
+                    System.out.println(matriculalista[i]);
+                    
                 }
                 ResultSet rs2 = stm1.executeQuery("Select * from Usuario");
                 while (rs2.next()) {
-                    usuario.add(rs2.getInt("numero_usuario") + " " + rs2.getString("nombre") + " " + rs2.getString("apellidos"));
+                    usuario.add(new Usuario(rs2.getInt("numero_usuario"),rs2.getString("nombre") + " " + rs2.getString("apellidos"),rs2.getString("Matricula")));
                 }
 
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
-            JComboBox<String> jf5 = new JComboBox();
-            DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) jf5.getModel();
+            JComboBox<Usuario> jf5 = new JComboBox();
+            DefaultComboBoxModel<Usuario> model = (DefaultComboBoxModel<Usuario>) jf5.getModel();
             model.addAll(usuario);
             JLabel[] l = new JLabel[20];
             JPanel[] pablo = new JPanel[20];
             ActionListener buttonListener = new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    JButton clickedButton = (JButton) e.getSource();
-                    System.out.println("Botón presionado: " + clickedButton.getText());
-                    System.out.println(jf5.getSelectedItem());
-                    JLabel ls = l[Integer.parseInt(clickedButton.getText())-1];
-                    System.out.println(ls.getText());
+
+                    Connection c1;
+                    try {
+                        c1 = DriverManager.getConnection(url, username, password);
+                        Statement stm1 = c1.createStatement();
+                        JButton clickedButton = (JButton) e.getSource();
+                        System.out.println("Botón presionado: " + clickedButton.getText());
+                        System.out.println(jf5.getSelectedItem());
+                        JLabel ls = l[Integer.parseInt(clickedButton.getText()) - 1];
+                        System.out.println(ls.getText());
+                        System.out.println(lista[Integer.parseInt(clickedButton.getText())-1]);
+                        System.out.println(matriculalista[Integer.parseInt(clickedButton.getText())-1]);
+                    } catch (SQLException ex) {
+                        Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+
                 }
             };
-            
 
-            
             Border blackBorder = BorderFactory.createLineBorder(Color.BLACK);
 
             for (int i = 0; i < 20; i++) {
@@ -355,9 +373,9 @@ class panel extends JPanel {
 
             int resultado = JOptionPane.showConfirmDialog(null, jf5, "Elige una opción",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-            if (resultado == JOptionPane.OK_OPTION && resultado >-1) {
-                String okpa = (String)jf5.getSelectedItem();
+            if (resultado == JOptionPane.OK_OPTION && resultado > -1) {
                 
+
                 parking.setVisible(true);
             }
 
@@ -368,7 +386,7 @@ class panel extends JPanel {
             try {
                 Connection connection = DriverManager.getConnection(url, username, password);
                 //comando que enviara
-                String select = "select usuario.nombre as name, usuario.apellidos as apellido from usuario inner join coches on coches.numero_coche = usuario.numero_coche where coches.numero_coche = 1";
+                String select = "select usuario.nombre as name, usuario.apellidos as apellido from usuario inner join coches on coches.matricula = usuario.matricula where coches.matricula = '9823POO'";
                 Statement stm = connection.createStatement();
                 ResultSet rs = stm.executeQuery(select);
                 String texto = "Los usuarios que usan ibiza son:\n";
@@ -376,7 +394,7 @@ class panel extends JPanel {
                 while (rs.next()) {//los coge y luego los imprime
                     texto += rs.getString("name") + " " + rs.getString("apellido") + "\n";
                 }
-                ta.setText(texto);
+                JOptionPane.showMessageDialog(null, texto);
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -385,15 +403,15 @@ class panel extends JPanel {
             try {
                 Connection connection = DriverManager.getConnection(url, username, password);
                 //comando que enviara
-                String select = "select coches.numero_coche as num, coches.modelo as modelo from coches inner join usuario on  usuario.numero_coche = coches.numero_coche where coches.numero_coche = 3";
+                String select = "select coches.matricula as num, coches.modelo as modelo from coches inner join usuario on  usuario.matricula = coches.matricula where coches.matricula = '1234UIO'";
                 Statement stm = connection.createStatement();
                 ResultSet rs = stm.executeQuery(select);
                 String texto = "Los usuarios que usan ibiza son:\n";
 
                 while (rs.next()) {//los coge y luego los imprime
-                    texto += rs.getInt("num") + " " + rs.getString("modelo") + "\n";
+                    texto += rs.getString("num") + " " + rs.getString("modelo") + "\n";
                 }
-                ta.setText(texto);
+                JOptionPane.showMessageDialog(null, texto);
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -402,7 +420,7 @@ class panel extends JPanel {
             try {
                 Connection connection = DriverManager.getConnection(url, username, password);
                 //comando que enviara
-                String select = "select count(TipoDePlaza) as libre from plazas_garaje";
+                String select = "select count(TipoDePlaza) as libre from plazas_garaje where tipodeplaza = 'libre'";
                 Statement stm = connection.createStatement();
                 ResultSet rs = stm.executeQuery(select);
                 String texto = "La cantidad de plazas libres hay es :";
@@ -410,7 +428,7 @@ class panel extends JPanel {
                 while (rs.next()) {//los coge y luego los imprime
                     texto += rs.getInt("libre");
                 }
-                ta.setText(texto);
+                JOptionPane.showMessageDialog(null, texto);
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }

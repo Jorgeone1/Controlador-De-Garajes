@@ -35,12 +35,12 @@ insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Jonas',
 insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Luis','Alberto','30-May-1969','5432MNB');
 insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Jonas','Ginsberg','10-Abr-1969','7654JGH');
 
-INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (1, 'reservada',false);
-INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (2, 'reservada',false);
-INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (3, 'reservada',false);
-INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (4, 'reservada',false);
-INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (5, 'disabled',false);
-INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (6, 'disabled',false);
+INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (1, 'reservada',true);
+INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (2, 'reservada',true);
+INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (3, 'reservada',true);
+INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (4, 'reservada',true);
+INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (5, 'disabled',true);
+INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (6, 'disabled',true);
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (7, 'libre',false);
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (8, 'libre',false);
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (9, 'libre',false);
