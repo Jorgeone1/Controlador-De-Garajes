@@ -100,9 +100,15 @@ class panel extends JPanel {
                 double height = screenSize.getHeight();
                 jf.setBounds((int) (width / 3), (int) (height / 3), 500, 300);
                 jf.setResizable(false);
-                JPanel panelCoches = new JPanel(new GridLayout(5, 2, 20, 20));
+                JPanel panelCoches = new JPanel(new GridLayout(6, 2, 10, 10));
                 JLabel j1 = new JLabel("Matricula:");
+               
                 JTextField jf1 = new JTextField();
+                JButton AyudaFormatos = new JButton("?");
+                AyudaFormatos.setToolTipText("Formatos Permitidos");
+                JPanel ayudaCoche = new JPanel(new GridLayout(1,2));
+                ayudaCoche.add(jf1);
+                ayudaCoche.add(AyudaFormatos);
                 JLabel j2 = new JLabel("Marca:");
                 JTextField jf2 = new JTextField();
                 JLabel j3 = new JLabel("Modelo");
@@ -111,9 +117,9 @@ class panel extends JPanel {
                 JTextField jf4 = new JTextField();
                 JButton botonConfirmar = new JButton("Confirmar");
                 JButton botonBorrar = new JButton("Borrar");
-                panelCoches.setBorder(new EmptyBorder(20, 10, 20, 10));
+                panelCoches.setBorder(new EmptyBorder(10, 10, 10, 10));
                 panelCoches.add(j1);
-                panelCoches.add(jf1);
+                panelCoches.add(ayudaCoche);
                 panelCoches.add(j2);
                 panelCoches.add(jf2);
                 panelCoches.add(j3);
@@ -128,17 +134,25 @@ class panel extends JPanel {
                     String numeroCoche = jf1.getText();
                     numeroCoche = numeroCoche.replace(" ", "");
                     numeroCoche = numeroCoche.toUpperCase();
-                    System.out.println(numeroCoche);
                     String numeroMarca = jf2.getText();
                     String numeroModelo = jf3.getText();
                     String numeroAnyo = jf4.getText();
                     String regex = "[0-9]{4}[A-Z]{3}";
                     String regex2 = "[A-Z]{1}[0-9]{4}[A-Z]{2}";
+                    String regex3 = "[A-Z]{1}[0-9]{6}";
+                    String regex4 = "[A-Z]{1}[0-9]{4}[A-Z]{3}";
+                    String regex5 = "[A-Z]{2}[0-9]{6}";
                     Pattern pattern1 = Pattern.compile(regex);
                     Pattern pattern2 = Pattern.compile(regex2);
+                    Pattern pattern3 = Pattern.compile(regex3);
+                    Pattern pattern4 = Pattern.compile(regex4);
+                    Pattern pattern5 = Pattern.compile(regex5);
                     Matcher match1 = pattern1.matcher(numeroCoche);
                     Matcher match2 = pattern2.matcher(numeroCoche);
-                    if (match1.matches() || match2.matches()) {
+                    Matcher match3 = pattern3.matcher(numeroCoche);
+                    Matcher match4 = pattern4.matcher(numeroCoche);
+                    Matcher match5 = pattern5.matcher(numeroCoche);
+                    if (match1.matches() || match2.matches()|| match3.matches()|| match4.matches()|| match5.matches()) {
                         if (!"".equals(numeroMarca) || numeroMarca == null) {
                             if (!"".equals(numeroModelo) || numeroModelo == null) {
                                 if (!"".equals(numeroAnyo) || numeroAnyo == null) {
@@ -177,6 +191,9 @@ class panel extends JPanel {
                     jf3.setText("");
                     jf4.setText("");
                 });
+                AyudaFormatos.addActionListener((ActionEvent e2)->{
+                    JOptionPane.showMessageDialog(null, "Formatos Permitidos:\nLNNNNNN\nLLNNNNNN\nNNNNLLL\nLNNNNLL\nLNNNNLLL");
+                });
             }
         });
         boton1.addActionListener((ActionEvent e) -> {
@@ -193,7 +210,7 @@ class panel extends JPanel {
                     datos = rs.getInt("numero_usuario") + 1;
                 }
                 String linea = "";
-                ResultSet rs1 = stm1.executeQuery("select * from coches where matricula not in(Select matricula from usuario)");
+                ResultSet rs1 = stm1.executeQuery("select * from coches");
                 
                 while (rs1.next()) {
                     linea = rs1.getString("Matricula") + " " + rs1.getString("marca") + " " + rs1.getString("modelo") + " " + rs1.getInt("anyo");
@@ -202,9 +219,7 @@ class panel extends JPanel {
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
-            if(lista.size()<=0){
-                JOptionPane.showMessageDialog(null, "Debe de registrar un coche primero");
-            }else{
+            
                 
                 
                 Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();//comprueba el tamaño de la pantalla
@@ -308,7 +323,7 @@ class panel extends JPanel {
                     jf4.setText("");
                     jf5.setSelectedIndex(-1);
                 });
-            }
+            
         });
         boton2.addActionListener((ActionEvent e) -> {
             JFrame parking = new JFrame();
