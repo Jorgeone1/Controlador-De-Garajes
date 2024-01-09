@@ -10,6 +10,7 @@ import java.sql.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -199,7 +200,7 @@ class panel extends JPanel {
         boton1.addActionListener((ActionEvent e) -> {
             JFrame jf = new JFrame();
             Connection c1;
-            ArrayList<String> lista = new ArrayList<>();
+            ArrayList<Coches> lista = new ArrayList<>();
             int datos = 0;
             try {
                 c1 = DriverManager.getConnection(url, username, password);
@@ -213,8 +214,7 @@ class panel extends JPanel {
                 ResultSet rs1 = stm1.executeQuery("select * from coches");
 
                 while (rs1.next()) {
-                    linea = rs1.getString("Matricula") + " " + rs1.getString("marca") + " " + rs1.getString("modelo") + " " + rs1.getInt("anyo");
-                    lista.add(linea);
+                    lista.add(new Coches(rs1.getString("matricula"), rs1.getString("marca"), rs1.getString("modelo"), rs1.getInt("anyo")));
                 }
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
@@ -237,8 +237,8 @@ class panel extends JPanel {
             JLabel j4 = new JLabel("fecha nacimiento");
             JTextField jf4 = new JTextField();
             JLabel j5 = new JLabel("Matricula");
-            JComboBox<String> jf5 = new JComboBox();
-            DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) jf5.getModel();
+            JComboBox<Coches> jf5 = new JComboBox();
+            DefaultComboBoxModel<Coches> model = (DefaultComboBoxModel<Coches>) jf5.getModel();
             model.addAll(lista);
             JButton botonConfirmar = new JButton("Confirmar");
             JButton botonBorrar = new JButton("Borrar");
@@ -263,16 +263,16 @@ class panel extends JPanel {
                 String numeroNombre = jf2.getText();
                 String numeroApellidos = jf3.getText();
                 String numeroNacimiento = jf4.getText();
-
-                String regex = "[0-9]+";
-                String formato = "dd/mm/yyyy"; // Define el formato de fecha esperado.
+                
+                String formato = "dd/MM/yyyy"; // Define el formato de fecha esperado.
 
                 SimpleDateFormat sdf = new SimpleDateFormat(formato);
                 sdf.setLenient(false);
-                Pattern pattern = Pattern.compile(regex);
                 try {
-                    String numeroCocheSel = lista.get(jf5.getSelectedIndex()).substring(0, 7);
+                    String numeroCocheSel = lista.get(jf5.getSelectedIndex()).getMatricula();
                     java.util.Date fecha = sdf.parse(numeroNacimiento);
+                    
+              
                     if (jf5.getSelectedIndex() > -1) {
                         if (!"".equals(numeroCoche) || numeroCoche == null) {
                             if (numeroNombre != "" || numeroNombre == null) {
@@ -308,7 +308,8 @@ class panel extends JPanel {
                     } else {
                         JOptionPane.showMessageDialog(null, "Debe elegir un coche");
                     }
-                } catch (ParseException ex) {
+                    
+                    } catch (ParseException ex) {
                     JOptionPane.showMessageDialog(null, "Error el formato de la fecha tiene que ser dd/mm/yyyy");
                 } catch (IndexOutOfBoundsException ez) {
                     JOptionPane.showMessageDialog(null, "Tienes que elegir una matricula");
@@ -336,6 +337,7 @@ class panel extends JPanel {
             boolean[] lista = new boolean[20];
             String[] matriculalista = new String[20];
             ArrayList<Usuario> usuario = new ArrayList<>();
+            ArrayList<Usuario> usuarioSinParking = new ArrayList<>();
             try {
                 Connection c1 = DriverManager.getConnection(url, username, password);
                 Statement stm1 = c1.createStatement();
@@ -348,17 +350,28 @@ class panel extends JPanel {
                     matriculalista[cont] = rs1.getString("Matricula");
                     cont++;
                 }
-                ResultSet rs2 = stm1.executeQuery("Select * from Usuario");
+                ResultSet rs2 = stm1.executeQuery("select * from usuario where Matricula in (select Matricula from plazas_garaje where Matricula is not null) and numero_usuario in (select numero_usuario from plazas_garaje where numero_usuario is not null)");
                 while (rs2.next()) {
-                    usuario.add(new Usuario(rs2.getInt("numero_usuario"), rs2.getString("nombre") + " " + rs2.getString("apellidos"), rs2.getString("Matricula")));
+                    usuarioSinParking.add(new Usuario(rs2.getInt("numero_usuario"), rs2.getString("nombre") + " " + rs2.getString("apellidos"), rs2.getString("Matricula")));
                 }
-                ResultSet rs3 = stm1.executeQuery("");
+                for (Usuario s : usuarioSinParking) {
+                    System.out.println(s);
+                }
+                ResultSet rs3 = stm1.executeQuery("select * from usuario where Matricula not in(Select Matricula from plazas_garaje where Matricula is not null);");
+                while (rs3.next()) {
+                    usuario.add(new Usuario(rs3.getInt("numero_usuario"), rs3.getString("nombre") + " " + rs3.getString("apellidos"), rs3.getString("Matricula")));
+                }
+                stm1.close();
+                c1.close();
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
             JComboBox<Usuario> jf5 = new JComboBox();
             DefaultComboBoxModel<Usuario> model = (DefaultComboBoxModel<Usuario>) jf5.getModel();
             model.addAll(usuario);
+            JComboBox<Usuario> jf6 = new JComboBox();
+            DefaultComboBoxModel<Usuario> model1 = (DefaultComboBoxModel<Usuario>) jf6.getModel();
+            model1.addAll(usuarioSinParking);
             JLabel[] l = new JLabel[20];
             JPanel[] pablo = new JPanel[20];
             ActionListener buttonListener = new ActionListener() {
@@ -373,19 +386,19 @@ class panel extends JPanel {
                         Usuario us = (Usuario) jf5.getSelectedItem();
                         System.out.println(us);
                         int indice = Integer.parseInt(clickedButton.getText()) - 1;
-                        
+
                         JLabel jl = l[indice];
                         if ("libre".equals(jl.getText())) {
                             int confirmar = JOptionPane.showConfirmDialog(null, "Desea confirmar que quiere seleccionar este sitio");
                             if (confirmar == JOptionPane.YES_OPTION) {
-                                stm1.executeUpdate("update plazas_garaje set matricula = '" + us.getMatricula() + "', TipoDePlaza = 'ocupada', onuse = true where Numero = " + clickedButton.getText());
+                                stm1.executeUpdate("update plazas_garaje set matricula = '" + us.getMatricula() + "', TipoDePlaza = 'ocupada', onuse = true,numero_usuario = " + us.getNumero_usuario() + " where Numero = " + clickedButton.getText());
                                 l[indice].setText("ocupada");
                                 pablo[indice].setBackground(Color.red);
                                 parking.setVisible(false);
                                 stm1.close();
                                 c1.close();
                             }
-                        }else{
+                        } else {
                             JOptionPane.showMessageDialog(null, "No esta disponible el sitio.");
                         }
 
@@ -418,13 +431,40 @@ class panel extends JPanel {
                 pablo[i] = p;
                 CambiarColor(pablo, label, i);
             }
-            String[] menuTexto = {"Aparcar Coche","Retirar Coche","Cancel"};
-            int elegir = JOptionPane.showOptionDialog(null, "Seleccione una opción", "Titulo",JOptionPane.DEFAULT_OPTION,JOptionPane.QUESTION_MESSAGE, null, menuTexto, menuTexto[0]);
-            
-            int resultado = JOptionPane.showConfirmDialog(null, jf5, "Elige una opción",JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-            if (resultado == JOptionPane.OK_OPTION && resultado > -1) {
+            String[] menuTexto = {"Aparcar Coche", "Retirar Coche", "Cancel"};
+            int elegir = JOptionPane.showOptionDialog(null, "Seleccione una opción", "Titulo", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, menuTexto, menuTexto[0]);
+            System.out.println(elegir);
+            switch (elegir) {
+                case 0 -> {
+                    int resultado = JOptionPane.showConfirmDialog(null, jf5, "Elige una opción", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (resultado == JOptionPane.OK_OPTION && resultado > -1) {
+                        parking.setVisible(true);
 
-                parking.setVisible(true);
+                    }
+                }
+                case 1 -> {
+                    try {
+                       JOptionPane.showConfirmDialog(null, jf6, "Elige una opción", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                       int resultado = jf6.getSelectedIndex();
+                        Connection c1 = DriverManager.getConnection(url, username, password);
+                        Statement stm1 = c1.createStatement();
+                        ResultSet rs = stm1.executeQuery("Select numero from plazas_garaje where matricula = '" +usuarioSinParking.get(resultado).getMatricula()+"'");                        int parkings = 0;
+                        while(rs.next()){
+                            parkings = rs.getInt("numero");
+                        }
+                        int confirmarSacar = JOptionPane.showConfirmDialog(null, "Deseas liberar el aparcamiento"+ parkings+" del coche "+usuarioSinParking.get(resultado).getMatricula());
+                        if(confirmarSacar == JOptionPane.YES_OPTION){
+                            stm1.executeUpdate("Update plazas_garaje set tipodeplaza = 'libre', onuse = false,matricula = null,numero_usuario = null where numero = "+parkings);
+                        }
+                    } catch (SQLException ex) {
+                        Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                }
+
+                default -> {
+
+                }
             }
 
         }
@@ -503,4 +543,22 @@ class panel extends JPanel {
             }
         }
     }
+    private static boolean isValidDate(int day, int month, int year) {
+    // Verificar febrero
+    if (month == 2) {
+        if (year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)) {
+            return day >= 1 && day <= 29;
+        } else {
+            return day >= 1 && day <= 28;
+        }
+    }
+
+    // Verificar meses con 30 días
+    if (month == 4 || month == 6 || month == 9 || month == 11) {
+        return day >= 1 && day <= 30;
+    }
+
+    // Verificar meses con 31 días
+    return day >= 1 && day <= 31;
+}
 }
