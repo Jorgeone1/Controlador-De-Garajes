@@ -102,11 +102,11 @@ class panel extends JPanel {
                 jf.setResizable(false);
                 JPanel panelCoches = new JPanel(new GridLayout(6, 2, 10, 10));
                 JLabel j1 = new JLabel("Matricula:");
-               
+
                 JTextField jf1 = new JTextField();
                 JButton AyudaFormatos = new JButton("?");
                 AyudaFormatos.setToolTipText("Formatos Permitidos");
-                JPanel ayudaCoche = new JPanel(new GridLayout(1,2));
+                JPanel ayudaCoche = new JPanel(new GridLayout(1, 2));
                 ayudaCoche.add(jf1);
                 ayudaCoche.add(AyudaFormatos);
                 JLabel j2 = new JLabel("Marca:");
@@ -152,7 +152,7 @@ class panel extends JPanel {
                     Matcher match3 = pattern3.matcher(numeroCoche);
                     Matcher match4 = pattern4.matcher(numeroCoche);
                     Matcher match5 = pattern5.matcher(numeroCoche);
-                    if (match1.matches() || match2.matches()|| match3.matches()|| match4.matches()|| match5.matches()) {
+                    if (match1.matches() || match2.matches() || match3.matches() || match4.matches() || match5.matches()) {
                         if (!"".equals(numeroMarca) || numeroMarca == null) {
                             if (!"".equals(numeroModelo) || numeroModelo == null) {
                                 if (!"".equals(numeroAnyo) || numeroAnyo == null) {
@@ -170,7 +170,7 @@ class panel extends JPanel {
                                         c.close();
                                     } catch (SQLIntegrityConstraintViolationException ex) {
                                         JOptionPane.showMessageDialog(null, "Ya existe este coche");
-                                    }catch(SQLException Es){
+                                    } catch (SQLException Es) {
                                         System.out.println("Error SQL");
                                     }
                                 } else {
@@ -191,7 +191,7 @@ class panel extends JPanel {
                     jf3.setText("");
                     jf4.setText("");
                 });
-                AyudaFormatos.addActionListener((ActionEvent e2)->{
+                AyudaFormatos.addActionListener((ActionEvent e2) -> {
                     JOptionPane.showMessageDialog(null, "Formatos Permitidos:\nLNNNNNN\nLLNNNNNN\nNNNNLLL\nLNNNNLL\nLNNNNLLL");
                 });
             }
@@ -211,7 +211,7 @@ class panel extends JPanel {
                 }
                 String linea = "";
                 ResultSet rs1 = stm1.executeQuery("select * from coches");
-                
+
                 while (rs1.next()) {
                     linea = rs1.getString("Matricula") + " " + rs1.getString("marca") + " " + rs1.getString("modelo") + " " + rs1.getInt("anyo");
                     lista.add(linea);
@@ -219,111 +219,109 @@ class panel extends JPanel {
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-                
-                
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();//comprueba el tamaño de la pantalla
-                double width = screenSize.getWidth();//los guardo en variables
-                double height = screenSize.getHeight();
-                jf.setBounds((int) (width / 3), (int) (height / 3), 500, 300);
-                jf.setResizable(false);
-                JPanel panelCoches = new JPanel(new GridLayout(6, 2, 20, 20));
-                JLabel j1 = new JLabel("Numero de Usuario:");
-                JTextField jf1 = new JTextField();
-                jf1.setText(datos + "");
-                jf1.setEditable(false);
-                JLabel j2 = new JLabel("Nombre:");
-                JTextField jf2 = new JTextField();
-                JLabel j3 = new JLabel("Apellidos");
-                JTextField jf3 = new JTextField();
-                JLabel j4 = new JLabel("fecha nacimiento");
-                JTextField jf4 = new JTextField();
-                JLabel j5 = new JLabel("Matricula");
-                JComboBox<String> jf5 = new JComboBox();
-                DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) jf5.getModel();
-                model.addAll(lista);
-                JButton botonConfirmar = new JButton("Confirmar");
-                JButton botonBorrar = new JButton("Borrar");
-                panelCoches.setBorder(new EmptyBorder(20, 10, 20, 10));
-                panelCoches.add(j1);
-                panelCoches.add(jf1);
-                panelCoches.add(j2);
-                panelCoches.add(jf2);
-                panelCoches.add(j3);
-                panelCoches.add(jf3);
-                panelCoches.add(j4);
-                panelCoches.add(jf4);
-                panelCoches.add(j5);
-                panelCoches.add(jf5);
-                
-                panelCoches.add(botonConfirmar);
-                panelCoches.add(botonBorrar);
-                jf.add(panelCoches);
-                jf.setVisible(true);
-                botonConfirmar.addActionListener((ActionEvent e1) -> {
-                    String numeroCoche = jf1.getText();
-                    String numeroNombre = jf2.getText();
-                    String numeroApellidos = jf3.getText();
-                    String numeroNacimiento = jf4.getText();
-                    
-                    String regex = "[0-9]+";
-                    String formato = "dd/mm/yyyy"; // Define el formato de fecha esperado.
-                    
-                    SimpleDateFormat sdf = new SimpleDateFormat(formato);
-                    sdf.setLenient(false);
-                    Pattern pattern = Pattern.compile(regex);
-                    try{
-                        String numeroCocheSel = lista.get(jf5.getSelectedIndex()).substring(0, 7);
-                        java.util.Date fecha =  sdf.parse(numeroNacimiento);
-                        if (jf5.getSelectedIndex() > -1) {
-                            if (!"".equals(numeroCoche) || numeroCoche == null) {
-                                if (numeroNombre != "" || numeroNombre == null) {
-                                    if (!"".equals(numeroApellidos) || numeroApellidos == null) {
-                                        if (numeroNacimiento != "" || numeroNacimiento == null) {
-                                            try {
-                                                Connection c = DriverManager.getConnection(url, username, password);
-                                                Statement stm = c.createStatement();
-                                                stm.executeUpdate("Insert into usuario(Numero_usuario,nombre,apellidos,fecha_nacimiento,Matricula) values(" + numeroCoche + ",'" + numeroNombre + "','" + numeroApellidos + "','" + numeroNacimiento + "','" + numeroCocheSel + "')");
-                                                JOptionPane.showMessageDialog(null, "Se realizo con exito la introducción del usuario.");
-                                                jf2.setText("");
-                                                jf3.setText("");
-                                                jf4.setText("");
-                                                jf5.setSelectedIndex(-1);
-                                                jf.setVisible(false);
-                                                stm.close();
-                                                c.close();
-                                            } catch (SQLException ex) {
-                                                Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
-                                            }
-                                        } else {
-                                            JOptionPane.showMessageDialog(null, "Error no puede estar vacio Año");
+
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();//comprueba el tamaño de la pantalla
+            double width = screenSize.getWidth();//los guardo en variables
+            double height = screenSize.getHeight();
+            jf.setBounds((int) (width / 3), (int) (height / 3), 500, 300);
+            jf.setResizable(false);
+            JPanel panelCoches = new JPanel(new GridLayout(6, 2, 20, 20));
+            JLabel j1 = new JLabel("Numero de Usuario:");
+            JTextField jf1 = new JTextField();
+            jf1.setText(datos + "");
+            jf1.setEditable(false);
+            JLabel j2 = new JLabel("Nombre:");
+            JTextField jf2 = new JTextField();
+            JLabel j3 = new JLabel("Apellidos");
+            JTextField jf3 = new JTextField();
+            JLabel j4 = new JLabel("fecha nacimiento");
+            JTextField jf4 = new JTextField();
+            JLabel j5 = new JLabel("Matricula");
+            JComboBox<String> jf5 = new JComboBox();
+            DefaultComboBoxModel<String> model = (DefaultComboBoxModel<String>) jf5.getModel();
+            model.addAll(lista);
+            JButton botonConfirmar = new JButton("Confirmar");
+            JButton botonBorrar = new JButton("Borrar");
+            panelCoches.setBorder(new EmptyBorder(20, 10, 20, 10));
+            panelCoches.add(j1);
+            panelCoches.add(jf1);
+            panelCoches.add(j2);
+            panelCoches.add(jf2);
+            panelCoches.add(j3);
+            panelCoches.add(jf3);
+            panelCoches.add(j4);
+            panelCoches.add(jf4);
+            panelCoches.add(j5);
+            panelCoches.add(jf5);
+
+            panelCoches.add(botonConfirmar);
+            panelCoches.add(botonBorrar);
+            jf.add(panelCoches);
+            jf.setVisible(true);
+            botonConfirmar.addActionListener((ActionEvent e1) -> {
+                String numeroCoche = jf1.getText();
+                String numeroNombre = jf2.getText();
+                String numeroApellidos = jf3.getText();
+                String numeroNacimiento = jf4.getText();
+
+                String regex = "[0-9]+";
+                String formato = "dd/mm/yyyy"; // Define el formato de fecha esperado.
+
+                SimpleDateFormat sdf = new SimpleDateFormat(formato);
+                sdf.setLenient(false);
+                Pattern pattern = Pattern.compile(regex);
+                try {
+                    String numeroCocheSel = lista.get(jf5.getSelectedIndex()).substring(0, 7);
+                    java.util.Date fecha = sdf.parse(numeroNacimiento);
+                    if (jf5.getSelectedIndex() > -1) {
+                        if (!"".equals(numeroCoche) || numeroCoche == null) {
+                            if (numeroNombre != "" || numeroNombre == null) {
+                                if (!"".equals(numeroApellidos) || numeroApellidos == null) {
+                                    if (numeroNacimiento != "" || numeroNacimiento == null) {
+                                        try {
+                                            Connection c = DriverManager.getConnection(url, username, password);
+                                            Statement stm = c.createStatement();
+                                            stm.executeUpdate("Insert into usuario(Numero_usuario,nombre,apellidos,fecha_nacimiento,Matricula) values(" + numeroCoche + ",'" + numeroNombre + "','" + numeroApellidos + "','" + numeroNacimiento + "','" + numeroCocheSel + "')");
+                                            JOptionPane.showMessageDialog(null, "Se realizo con exito la introducción del usuario.");
+                                            jf2.setText("");
+                                            jf3.setText("");
+                                            jf4.setText("");
+                                            jf5.setSelectedIndex(-1);
+                                            jf.setVisible(false);
+                                            stm.close();
+                                            c.close();
+                                        } catch (SQLException ex) {
+                                            Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
                                         }
                                     } else {
-                                        JOptionPane.showMessageDialog(null, "Error no puede estar vacio Modelo");
+                                        JOptionPane.showMessageDialog(null, "Error no puede estar vacio Año");
                                     }
                                 } else {
-                                    JOptionPane.showMessageDialog(null, "Error no puede estar vacio Marca");
+                                    JOptionPane.showMessageDialog(null, "Error no puede estar vacio Modelo");
                                 }
                             } else {
-                                JOptionPane.showMessageDialog(null, "Error no puede estar vacio Numero de Coche");
+                                JOptionPane.showMessageDialog(null, "Error no puede estar vacio Marca");
                             }
                         } else {
-                            JOptionPane.showMessageDialog(null, "Debe elegir un coche");
+                            JOptionPane.showMessageDialog(null, "Error no puede estar vacio Numero de Coche");
                         }
-                    }catch(ParseException ex){
-                        JOptionPane.showMessageDialog(null, "Error el formato de la fecha tiene que ser dd/mm/yyyy");
-                    }catch(IndexOutOfBoundsException ez){
-                        JOptionPane.showMessageDialog(null, "Tienes que elegir una matricula");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Debe elegir un coche");
                     }
-                    
-                });
-                botonBorrar.addActionListener((ActionEvent e1) -> {
-                    jf2.setText("");
-                    jf3.setText("");
-                    jf4.setText("");
-                    jf5.setSelectedIndex(-1);
-                });
-            
+                } catch (ParseException ex) {
+                    JOptionPane.showMessageDialog(null, "Error el formato de la fecha tiene que ser dd/mm/yyyy");
+                } catch (IndexOutOfBoundsException ez) {
+                    JOptionPane.showMessageDialog(null, "Tienes que elegir una matricula");
+                }
+
+            });
+            botonBorrar.addActionListener((ActionEvent e1) -> {
+                jf2.setText("");
+                jf3.setText("");
+                jf4.setText("");
+                jf5.setSelectedIndex(-1);
+            });
+
         });
         boton2.addActionListener((ActionEvent e) -> {
             JFrame parking = new JFrame();
@@ -349,13 +347,12 @@ class panel extends JPanel {
                     lista[cont] = rs1.getBoolean("Onuse");
                     matriculalista[cont] = rs1.getString("Matricula");
                     cont++;
-
                 }
                 ResultSet rs2 = stm1.executeQuery("Select * from Usuario");
                 while (rs2.next()) {
                     usuario.add(new Usuario(rs2.getInt("numero_usuario"), rs2.getString("nombre") + " " + rs2.getString("apellidos"), rs2.getString("Matricula")));
                 }
-
+                ResultSet rs3 = stm1.executeQuery("");
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -376,18 +373,22 @@ class panel extends JPanel {
                         Usuario us = (Usuario) jf5.getSelectedItem();
                         System.out.println(us);
                         int indice = Integer.parseInt(clickedButton.getText()) - 1;
-                        int confirmar= JOptionPane.showConfirmDialog(null,"Desea confirmar que quiere seleccionar este sitio");
-                        if(confirmar == JOptionPane.YES_OPTION){
-                            stm1.executeUpdate("update plazas_garaje set matricula = '"+us.getMatricula()+"', TipoDePlaza = 'ocupada', onuse = true where Numero = "+ clickedButton.getText());
-                            l[indice].setText("ocupada");
-                            pablo[indice].setBackground(Color.red); 
-                            parking.setVisible(false);
-                            stm1.close();
-                            c1.close();
-                        }else{
-                            JOptionPane.showMessageDialog(null, "Error");
-                        }
                         
+                        JLabel jl = l[indice];
+                        if ("libre".equals(jl.getText())) {
+                            int confirmar = JOptionPane.showConfirmDialog(null, "Desea confirmar que quiere seleccionar este sitio");
+                            if (confirmar == JOptionPane.YES_OPTION) {
+                                stm1.executeUpdate("update plazas_garaje set matricula = '" + us.getMatricula() + "', TipoDePlaza = 'ocupada', onuse = true where Numero = " + clickedButton.getText());
+                                l[indice].setText("ocupada");
+                                pablo[indice].setBackground(Color.red);
+                                parking.setVisible(false);
+                                stm1.close();
+                                c1.close();
+                            }
+                        }else{
+                            JOptionPane.showMessageDialog(null, "No esta disponible el sitio.");
+                        }
+
                     } catch (SQLException ex) {
                         Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
                     }
@@ -399,7 +400,7 @@ class panel extends JPanel {
 
             for (int i = 0; i < 20; i++) {
                 JPanel p = new JPanel(new GridLayout(2, 1));
-                
+
                 JLabel label = new JLabel(linea[i]);
                 JPanel ara = new JPanel(new FlowLayout(FlowLayout.CENTER));
                 ara.add(label);
@@ -417,9 +418,10 @@ class panel extends JPanel {
                 pablo[i] = p;
                 CambiarColor(pablo, label, i);
             }
-
-            int resultado = JOptionPane.showConfirmDialog(null, jf5, "Elige una opción",
-                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+            String[] menuTexto = {"Aparcar Coche","Retirar Coche","Cancel"};
+            int elegir = JOptionPane.showOptionDialog(null, "Seleccione una opción", "Titulo",JOptionPane.DEFAULT_OPTION,JOptionPane.QUESTION_MESSAGE, null, menuTexto, menuTexto[0]);
+            
+            int resultado = JOptionPane.showConfirmDialog(null, jf5, "Elige una opción",JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
             if (resultado == JOptionPane.OK_OPTION && resultado > -1) {
 
                 parking.setVisible(true);
@@ -482,21 +484,23 @@ class panel extends JPanel {
     }
 
     public static void CambiarColor(JPanel[] panel, JLabel l, int i) {
-        if (null != l.getText()) switch (l.getText()) {
-            case "libre":
-                panel[i].setBackground(Color.green);
-                break;
-            case "ocupada":
-                panel[i].setBackground(Color.red);
-                break;
-            case "disabled":
-                panel[i].setBackground(Color.black);
-                break;
-            case "reservada":
-                panel[i].setBackground(Color.yellow);
-                break;
-            default:
-                break;
+        if (null != l.getText()) {
+            switch (l.getText()) {
+                case "libre":
+                    panel[i].setBackground(Color.green);
+                    break;
+                case "ocupada":
+                    panel[i].setBackground(Color.red);
+                    break;
+                case "disabled":
+                    panel[i].setBackground(Color.black);
+                    break;
+                case "reservada":
+                    panel[i].setBackground(Color.yellow);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
