@@ -21,6 +21,7 @@ import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -49,10 +50,12 @@ import javax.swing.border.EmptyBorder;
  * @author Alumno
  */
 public class panel extends JPanel {
- private Conectar c10 = new Conectar();
- private JPanel[] listaPaneles = new JPanel[20];
- private JLabel[] listaLineas = new JLabel[20];
-    public panel(){
+
+    private Conectar c10 = new Conectar();
+    private JPanel[] listaPaneles = new JPanel[20];
+    private JLabel[] listaLineas = new JLabel[20];
+
+    public panel() {
         try {
             // Utiliza el Look and Feel de Windows
             UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
@@ -78,58 +81,56 @@ public class panel extends JPanel {
         bar.add(menu2);
         JPanel arriba = new JPanel(new FlowLayout(FlowLayout.CENTER));
         arriba.add(bar);
-        JPanel medium = new JPanel(new GridLayout(2,10,10,10));
+        JPanel medium = new JPanel(new GridLayout(2, 10, 10, 10));
         ArrayList<String> listaNombress = new ArrayList<>();
-        try{
-            
-        Statement stm5 = c10.Conectar();
-        ResultSet listaPlazasGaraje = stm5.executeQuery("Select * from plazas_garaje");
-        while(listaPlazasGaraje.next()){
-            listaNombress.add(listaPlazasGaraje.getString("tipodeplaza"));
-        }
-        }catch(SQLException ex){
-            
-        }
-        
-        
-        
-        ActionListener butnListener = (ActionEvent e) -> {
-           JButton button = (JButton)e.getSource();
-           int numer = Integer.parseInt(button.getText());
-           switch(listaLineas[numer-1].getText()){
-               case "libre"->{
-                   JOptionPane.showMessageDialog(null, "Este parking no contiene ningun coche");
-               }
-               case "disabled"->{
-                   JOptionPane.showMessageDialog(null, "Estos parkings estan deshabilitados");
-               }
-               case "reservada"->{
-                   JOptionPane.showMessageDialog(null, "Estos parking estan reservado por x persona");
-               }
-               case "ocupada"->{
-                   try {
-                       Statement stm1 = c10.Conectar();
-                       ResultSet rs = stm1.executeQuery("select plazas_garaje.numero as posicion, Usuario.numero_usuario as numero_usuario,nombre, apellidos, usuario.matricula as matricula from Usuario inner join plazas_garaje on Usuario.numero_usuario = plazas_garaje.numero_usuario");
-                       ArrayList<Usuario> listaUsuarios = new ArrayList<>();
-                       ArrayList<Integer> posicion = new ArrayList<>();
-                       while(rs.next()){
-                           listaUsuarios.add(new Usuario(rs.getInt("numero_usuario"),rs.getString("nombre")+" "+rs.getString("apellidos"),rs.getString("matricula")));
-                           posicion.add(rs.getInt("posicion"));
-                       }
-                       int indice = posicion.indexOf(numer);
-                       JOptionPane.showMessageDialog(null, "Esta ocupado por el coche con matricula "+listaUsuarios.get(indice).getMatricula()+"\nEl usuario con nombre: "+listaUsuarios.get(indice).getNombre());
-                   } catch (SQLException ex) {
-                       Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
-                   }
-               }
+        try {
 
-           }
+            Statement stm5 = c10.Conectar();
+            ResultSet listaPlazasGaraje = stm5.executeQuery("Select * from plazas_garaje");
+            while (listaPlazasGaraje.next()) {
+                listaNombress.add(listaPlazasGaraje.getString("tipodeplaza"));
+            }
+        } catch (SQLException ex) {
+
+        }
+
+        ActionListener butnListener = (ActionEvent e) -> {
+            JButton button = (JButton) e.getSource();
+            int numer = Integer.parseInt(button.getText());
+            switch (listaLineas[numer - 1].getText()) {
+                case "libre" -> {
+                    JOptionPane.showMessageDialog(null, "Este parking no contiene ningun coche");
+                }
+                case "disabled" -> {
+                    JOptionPane.showMessageDialog(null, "Estos parkings estan deshabilitados");
+                }
+                case "reservada" -> {
+                    JOptionPane.showMessageDialog(null, "Estos parking estan reservado por x persona");
+                }
+                case "ocupada" -> {
+                    try {
+                        Statement stm1 = c10.Conectar();
+                        ResultSet rs = stm1.executeQuery("select plazas_garaje.numero as posicion, Usuario.numero_usuario as numero_usuario,nombre, apellidos, usuario.matricula as matricula from Usuario inner join plazas_garaje on Usuario.numero_usuario = plazas_garaje.numero_usuario");
+                        ArrayList<Usuario> listaUsuarios = new ArrayList<>();
+                        ArrayList<Integer> posicion = new ArrayList<>();
+                        while (rs.next()) {
+                            listaUsuarios.add(new Usuario(rs.getInt("numero_usuario"), rs.getString("nombre") + " " + rs.getString("apellidos"), rs.getString("matricula")));
+                            posicion.add(rs.getInt("posicion"));
+                        }
+                        int indice = posicion.indexOf(numer);
+                        JOptionPane.showMessageDialog(null, "Esta ocupado por el coche con matricula " + listaUsuarios.get(indice).getMatricula() + "\nEl usuario con nombre: " + listaUsuarios.get(indice).getNombre());
+                    } catch (SQLException ex) {
+                        Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+            }
         };
-       Border blackBorder2 = BorderFactory.createLineBorder(Color.BLACK);
+        Border blackBorder2 = BorderFactory.createLineBorder(Color.BLACK);
         for (int i = 0; i < 20; i++) {
-            JPanel pew = new JPanel(new GridLayout(2,1,5,5));
+            JPanel pew = new JPanel(new GridLayout(2, 1, 5, 5));
             JPanel treh = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            JButton b = new JButton((i+1)+"");
+            JButton b = new JButton((i + 1) + "");
             JLabel l = new JLabel(listaNombress.get(i));
             treh.add(l);
             pew.add(treh);
@@ -137,22 +138,21 @@ public class panel extends JPanel {
             b.setBackground(Color.LIGHT_GRAY);
             b.setOpaque(true);
             b.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-            
+
             pew.add(b);
             listaPaneles[i] = pew;
             listaLineas[i] = l;
             medium.add(pew);
             pew.setBorder(blackBorder2);
-            CambiarColor(listaPaneles,l,i);
-            
+            CambiarColor(listaPaneles, l, i);
+
         }
         //creamos el text area con su scrollpane
-        
-        //añadimos ambos objetos al menu
 
+        //añadimos ambos objetos al menu
         JButton boton = new JButton("Introducir Coche");
         JButton boton1 = new JButton("Introducir Usuario");
-        JButton boton2 = new JButton("Introducir Plaza de Garaje");
+        JButton boton2 = new JButton("Introducir o sacar coche");
         FlowLayout fw = new FlowLayout(FlowLayout.CENTER);
         JPanel es = new JPanel(fw);
         es.add(boton);
@@ -161,7 +161,7 @@ public class panel extends JPanel {
         add(es, BorderLayout.SOUTH);
         add(arriba, BorderLayout.NORTH);
         add(medium, BorderLayout.CENTER);
-        
+
         boton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -174,7 +174,7 @@ public class panel extends JPanel {
                 jf.setResizable(false);
                 JPanel panelCoches = new JPanel(new GridLayout(6, 2, 10, 10));
                 JLabel j1 = new JLabel("Matricula:");
-                
+
                 JTextField jf1 = new JTextField();
                 JButton AyudaFormatos = new JButton("?");
                 AyudaFormatos.setToolTipText("Formatos Permitidos");
@@ -283,7 +283,7 @@ public class panel extends JPanel {
                 }
                 String linea = "";
                 ResultSet rs1 = stm1.executeQuery("select * from coches");
-                
+
                 while (rs1.next()) {
                     lista.add(new Coches(rs1.getString("matricula"), rs1.getString("marca"), rs1.getString("modelo"), rs1.getInt("anyo")));
                 }
@@ -334,7 +334,7 @@ public class panel extends JPanel {
                 String numeroNombre = jf2.getText();
                 String numeroApellidos = jf3.getText();
                 String numeroNacimiento = jf4.getText();
-                
+
                 String formato = "dd/MM/yyyy"; // Define el formato de fecha esperado.
 
                 SimpleDateFormat sdf = new SimpleDateFormat(formato);
@@ -342,8 +342,7 @@ public class panel extends JPanel {
                 try {
                     String numeroCocheSel = lista.get(jf5.getSelectedIndex()).getMatricula();
                     java.util.Date fecha = sdf.parse(numeroNacimiento);
-                    
-              
+
                     if (jf5.getSelectedIndex() > -1) {
                         if (!"".equals(numeroCoche) || numeroCoche == null) {
                             if (numeroNombre != "" || numeroNombre == null) {
@@ -379,8 +378,8 @@ public class panel extends JPanel {
                     } else {
                         JOptionPane.showMessageDialog(null, "Debe elegir un coche");
                     }
-                    
-                    } catch (ParseException ex) {
+
+                } catch (ParseException ex) {
                     JOptionPane.showMessageDialog(null, "Error el formato de la fecha tiene que ser dd/mm/yyyy");
                 } catch (IndexOutOfBoundsException ez) {
                     JOptionPane.showMessageDialog(null, "Tienes que elegir una matricula");
@@ -397,7 +396,7 @@ public class panel extends JPanel {
         });
         boton2.addActionListener((ActionEvent e) -> {
             JFrame parking = new JFrame();
-            
+
             Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();//comprueba el tamaño de la pantalla
             double width = screenSize.getWidth();//los guardo en variables
             double height = screenSize.getHeight();
@@ -446,7 +445,7 @@ public class panel extends JPanel {
             model1.addAll(usuarioSinParking);
             JLabel[] l = new JLabel[20];
             JPanel[] pablo = new JPanel[20];
-            
+
             ActionListener buttonListener = new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -469,7 +468,7 @@ public class panel extends JPanel {
                                 pablo[indice].setBackground(Color.red);
                                 parking.setVisible(false);
                                 listaLineas[indice].setText("ocupada");
-                                CambiarColor(listaPaneles,listaLineas[indice],indice);
+                                CambiarColor(listaPaneles, listaLineas[indice], indice);
                                 stm1.close();
                                 c1.close();
                             }
@@ -518,26 +517,87 @@ public class panel extends JPanel {
                 }
                 case 1 -> {
                     try {
-                       JOptionPane.showConfirmDialog(null, jf6, "Elige una opción", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
-                       int resultado = jf6.getSelectedIndex();
-                        
+                        JOptionPane.showConfirmDialog(null, jf6, "Elige una opción", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+                        int resultado = jf6.getSelectedIndex();
+
                         Statement stm1 = c10.Conectar();
-                        ResultSet rs = stm1.executeQuery("Select numero from plazas_garaje where matricula = '" +usuarioSinParking.get(resultado).getMatricula()+"'");                        int parkings = 0;
-                        while(rs.next()){
+                        ResultSet rs = stm1.executeQuery("Select numero from plazas_garaje where matricula = '" + usuarioSinParking.get(resultado).getMatricula() + "'");
+                        int parkings = 0;
+                        while (rs.next()) {
                             parkings = rs.getInt("numero");
                         }
-                        int confirmarSacar = JOptionPane.showConfirmDialog(null, "Deseas liberar el aparcamiento"+ parkings+" del coche "+usuarioSinParking.get(resultado).getMatricula());
-                        if(confirmarSacar == JOptionPane.YES_OPTION){
-                            stm1.executeUpdate("Update plazas_garaje set tipodeplaza = 'libre', onuse = false,matricula = null,numero_usuario = null where numero = "+parkings);
+                        int confirmarSacar = JOptionPane.showConfirmDialog(null, "Deseas liberar el aparcamiento" + parkings + " del coche " + usuarioSinParking.get(resultado).getMatricula());
+                        if (confirmarSacar == JOptionPane.YES_OPTION) {
+                            //datos para preparar poner la hora en la tabla
+                            int condicion1 = 0;
+                            int condicion2 = 1;
+                            boolean bucleInicial;
+                            boolean bucleFinal;
+                            boolean totalBucle = true;
+                            Date horaFFormat = null;
+                            Date horaIFormat = null;
+                            String formatoHora = "HH:mm:ss";
+                            SimpleDateFormat sdf = new SimpleDateFormat(formatoHora);
                             
-                            listaLineas[parkings-1].setText("libre");
-                            CambiarColor(listaPaneles,listaLineas[parkings-1],parkings-1);
+                            while(totalBucle){
+                                bucleInicial = true;
+                                bucleFinal = true;
+                            while (bucleInicial) {
+                                String horainicial = JOptionPane.showInputDialog("Inserte la hora de entrada");
+                                if (horainicial != null) {
+                                    try {
+                                        horaIFormat = sdf.parse(horainicial);
+                                        bucleInicial = false;
+                                        condicion1=1;
+                                    } catch (ParseException ex) {
+                                        bucleInicial = true;
+                                        JOptionPane.showMessageDialog(null, "Error el formato debe ponerlo en hh:mm:ss");
+                                    }
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Cancelastes el retirado de coche");
+                                    bucleFinal = false;
+                                    bucleInicial = false;
+                                }
+
+                            }
+                            
+                            while (bucleFinal) {
+                                String horafinal = JOptionPane.showInputDialog("Inserte la hora de salida");
+                                if (horafinal != null) {
+                                    try {
+                                        horaFFormat = sdf.parse(horafinal);
+                                        bucleFinal = false;
+                                        condicion2=1;
+                                    } catch (ParseException ex) {
+                                        bucleFinal = true;
+                                        JOptionPane.showMessageDialog(null, "Error el formato debe ponerlo en hh:mm:ss");
+                                    }
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Cancelastes el retirado de coche");
+                                    bucleFinal = false;
+                                }
+                            }
+                            if(horaFFormat.after(horaIFormat)){
+                                totalBucle = false;
+                            }else{
+                                JOptionPane.showMessageDialog(null, "Error");
+                            }
+                            }
+                            System.out.println(horaFFormat);
+                            System.out.println(horaIFormat);
+                            if(condicion1 == 1 && condicion2== 2){
+                                stm1.executeUpdate("Update plazas_garaje set tipodeplaza = 'libre', onuse = false,matricula = null,numero_usuario = null where numero = " + parkings);
+                                listaLineas[parkings - 1].setText("libre");
+                                CambiarColor(listaPaneles, listaLineas[parkings - 1], parkings - 1);
+                                stm1.close();
+                            }
+                            
                         }
                     } catch (SQLException ex) {
                         Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
-                    }catch(IndexOutOfBoundsException tri){
-                        
-                    }                    
+                    } catch (IndexOutOfBoundsException tri) {
+
+                    }
                 }
 
                 default -> {
@@ -621,5 +681,5 @@ public class panel extends JPanel {
             }
         }
     }
-    
+
 }

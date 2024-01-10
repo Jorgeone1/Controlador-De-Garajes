@@ -25,6 +25,16 @@ CREATE TABLE Plazas_Garaje (
     FOREIGN KEY (numero_usuario) REFERENCES usuario(numero_usuario)
     
 );
+CREATE TABLE TiempoEstancia (
+    ID INT PRIMARY KEY AUTO_INCREMENT,
+    numero_usuario integer,
+    dni varchar(10),
+    numero_tarjeta varchar(30),
+    importe float,
+    pagado float,
+    --se podria añadir fechas etc pero me dio flojera.
+    FOREIGN KEY (numero_usuario) REFERENCES usuario(numero_usuario)
+);
 Insert into coches(Matricula, marca, modelo,anyo) values("9823POO",'Seat','Ibiza',2007);
 Insert into coches(Matricula, marca, modelo,anyo) values('9123EST','Toyota','Corola',1999);
 Insert into coches(Matricula, marca, modelo,anyo) values('1234UIO','kia','Rio',2010);
