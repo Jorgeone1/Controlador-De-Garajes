@@ -5,4 +5,5 @@ com\mycompany\garaje\Coches.class
 com\mycompany\garaje\panel.class
 com\mycompany\garaje\Ventana.class
 com\mycompany\garaje\panel$1.class
+com\mycompany\garaje\Conectar.class
 com\mycompany\garaje\Usuario.class

@@ -45,8 +45,8 @@ insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Jonas',
 
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (1, 'reservada',true);
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (2, 'reservada',true);
-INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (3, 'reservada',true);
-INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (4, 'reservada',true);
+INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (3, 'libre',false);
+INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (4, 'libre',false);
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (5, 'disabled',true);
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (6, 'disabled',true);
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (7, 'libre',false);
@@ -65,7 +65,6 @@ INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (19, 'libre',false)
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (20, 'libre',false);
 
 UPDATE Plazas_Garaje SET onuse = true,tipodeplaza ="ocupada" WHERE Numero IN (7, 8, 9, 10, 11);
--- Asignar un coche a las plazas
 UPDATE Plazas_Garaje SET Matricula = "9823POO",numero_usuario=1 where numero = 7;
 UPDATE Plazas_Garaje SET Matricula = "9123EST",numero_usuario=2 where numero = 8;
 UPDATE Plazas_Garaje SET Matricula = "1234UIO",numero_usuario=3 where numero = 9;
