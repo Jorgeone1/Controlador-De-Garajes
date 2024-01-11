@@ -19,11 +19,12 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.regex.*;
 import javax.swing.*;
 
 /**
- *
- * @author Alumno
+ *Clase que es la ventana donde se dara los datos a pagar
+ * @author Jorge Wang Wang
  */
 public class ventanaDinero extends JFrame {
 
@@ -55,6 +56,9 @@ public class ventanaDinero extends JFrame {
         JTextField jf4 = new JTextField();
         JTextField jf5 = new JTextField();
         jf5.setEditable(false);
+        jf1.setEditable(false);
+        jf2.setEditable(false);
+        jf4.setEditable(false);
         jf3.setEditable(false);
         JButton boton1 = new JButton("Confirmar");
         JButton boton2 = new JButton("Calcular Dinero");
@@ -78,10 +82,24 @@ public class ventanaDinero extends JFrame {
         add(boton3);
         boton1.setEnabled(false);
         boton1.addActionListener((ActionEvent e) -> {
-
+            String pattern = "[0-9]{8}[A-Za-z]{1}";
+            Pattern pattern1 = Pattern.compile(pattern);
+            
             String DNI = jf1.getText();
             String numero_tarjeta = jf2.getText();
-
+            double dineroCliente = Double.parseDouble(jf4.getText());
+            double dineroApagar = Double.parseDouble(jf3.getText());
+            double resto = 0;
+            Matcher m = pattern1.matcher(DNI);
+            if(m.matches()){
+                if(dineroCliente>dineroApagar){
+                    resto = dineroCliente-dineroApagar;
+                }else{
+                    JOptionPane.showMessageDialog(null, "El dinero que aportas es menor que el dinero que debes");
+                }
+            }else{
+                JOptionPane.showMessageDialog(null,"El dni no tiene el formato correcto.");
+            }
         });
         boton2.addActionListener((ActionEvent e) -> {
             try {
@@ -118,6 +136,10 @@ public class ventanaDinero extends JFrame {
                 timeSpinner.setEnabled(false);
                 timeSpinner2.setEnabled(false);
                 boton1.setEnabled(true);
+                jf1.setEditable(true);
+                jf2.setEditable(true);
+                jf4.setEditable(true);
+        
             } catch (Exception io) {
                 JOptionPane.showMessageDialog(null,"Error en el formato o el contenido de las horas");
             }
@@ -128,6 +150,11 @@ public class ventanaDinero extends JFrame {
             timeSpinner2.setEnabled(true);
             jf3.setText("");
             boton1.setEnabled(false);
+            jf1.setEditable(false);
+            jf2.setEditable(false);
+            jf4.setEditable(false);
+            jf4.setText("");
+        
         });
 
     }

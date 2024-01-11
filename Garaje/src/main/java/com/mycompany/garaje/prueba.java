@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 /**
  *
- * @author Alumno
+ * @author Jorge Wang Wang
  */
 public class prueba {
 
