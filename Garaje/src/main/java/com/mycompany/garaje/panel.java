@@ -410,8 +410,8 @@ public class panel extends JPanel {
             ArrayList<Usuario> usuario = new ArrayList<>();
             ArrayList<Usuario> usuarioSinParking = new ArrayList<>();
             try {
-                Connection c1 = DriverManager.getConnection(url, username, password);
-                Statement stm1 = c1.createStatement();
+                
+                Statement stm1 = c10.Conectar();
                 ResultSet rs1 = stm1.executeQuery("Select * from Plazas_Garaje");
 
                 int cont = 0;
@@ -433,7 +433,6 @@ public class panel extends JPanel {
                     usuario.add(new Usuario(rs3.getInt("numero_usuario"), rs3.getString("nombre") + " " + rs3.getString("apellidos"), rs3.getString("Matricula")));
                 }
                 stm1.close();
-                c1.close();
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -529,68 +528,12 @@ public class panel extends JPanel {
                         int confirmarSacar = JOptionPane.showConfirmDialog(null, "Deseas liberar el aparcamiento" + parkings + " del coche " + usuarioSinParking.get(resultado).getMatricula());
                         if (confirmarSacar == JOptionPane.YES_OPTION) {
                             //datos para preparar poner la hora en la tabla
-                            int condicion1 = 0;
-                            int condicion2 = 1;
-                            boolean bucleInicial;
-                            boolean bucleFinal;
-                            boolean totalBucle = true;
-                            Date horaFFormat = null;
-                            Date horaIFormat = null;
-                            String formatoHora = "HH:mm:ss";
-                            SimpleDateFormat sdf = new SimpleDateFormat(formatoHora);
-                            
-                            while(totalBucle){
-                                bucleInicial = true;
-                                bucleFinal = true;
-                            while (bucleInicial) {
-                                String horainicial = JOptionPane.showInputDialog("Inserte la hora de entrada");
-                                if (horainicial != null) {
-                                    try {
-                                        horaIFormat = sdf.parse(horainicial);
-                                        bucleInicial = false;
-                                        condicion1=1;
-                                    } catch (ParseException ex) {
-                                        bucleInicial = true;
-                                        JOptionPane.showMessageDialog(null, "Error el formato debe ponerlo en hh:mm:ss");
-                                    }
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Cancelastes el retirado de coche");
-                                    bucleFinal = false;
-                                    bucleInicial = false;
-                                }
-
-                            }
-                            
-                            while (bucleFinal) {
-                                String horafinal = JOptionPane.showInputDialog("Inserte la hora de salida");
-                                if (horafinal != null) {
-                                    try {
-                                        horaFFormat = sdf.parse(horafinal);
-                                        bucleFinal = false;
-                                        condicion2=1;
-                                    } catch (ParseException ex) {
-                                        bucleFinal = true;
-                                        JOptionPane.showMessageDialog(null, "Error el formato debe ponerlo en hh:mm:ss");
-                                    }
-                                } else {
-                                    JOptionPane.showMessageDialog(null, "Cancelastes el retirado de coche");
-                                    bucleFinal = false;
-                                }
-                            }
-                            if(horaFFormat.after(horaIFormat)){
-                                totalBucle = false;
-                            }else{
-                                JOptionPane.showMessageDialog(null, "Error");
-                            }
-                            }
-                            System.out.println(horaFFormat);
-                            System.out.println(horaIFormat);
-                            if(condicion1 == 1 && condicion2== 2){
+                            ventanaDinero frame = new ventanaDinero(usuarioSinParking,parkings);  
                                 stm1.executeUpdate("Update plazas_garaje set tipodeplaza = 'libre', onuse = false,matricula = null,numero_usuario = null where numero = " + parkings);
                                 listaLineas[parkings - 1].setText("libre");
                                 CambiarColor(listaPaneles, listaLineas[parkings - 1], parkings - 1);
                                 stm1.close();
-                            }
+                            
                             
                         }
                     } catch (SQLException ex) {

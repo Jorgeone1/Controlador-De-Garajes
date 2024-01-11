@@ -4,19 +4,11 @@
  */
 package com.mycompany.garaje;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.time.LocalTime;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.time.Instant;
-import javax.swing.*;
-import com.toedter.calendar.JDateChooser;
+import java.util.ArrayList;
+
 /**
  *
- * @author jww11
+ * @author Alumno
  */
 public class prueba {
 
@@ -24,30 +16,8 @@ public class prueba {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Calendario y Hora");
-
-        // Crear un JDateChooser para el calendario
-        JDateChooser dateChooser = new JDateChooser();
-
-        // Crear un JSpinner para la hora
-        SpinnerDateModel spinnerModel = new SpinnerDateModel();
-        JSpinner timeSpinner = new JSpinner(spinnerModel);
-        JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm:ss");
-        timeSpinner.setEditor(timeEditor);
-
-        // Crear un panel y agregar los componentes
-        JPanel panel = new JPanel();
-        panel.add(new JLabel("Fecha:"));
-        panel.add(dateChooser);
-        panel.add(new JLabel("Hora:"));
-        panel.add(timeSpinner);
-
-        // Agregar el panel al marco
-        frame.add(panel);
-
-        // Configuración de la ventana
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
+        ArrayList<Usuario> us = new ArrayList<>();
+        ventanaDinero frame = new ventanaDinero(us,1);  
         frame.setVisible(true);
     }
     

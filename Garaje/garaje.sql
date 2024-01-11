@@ -32,7 +32,6 @@ CREATE TABLE TiempoEstancia (
     numero_tarjeta varchar(30),
     importe float,
     pagado float,
-    --se podria añadir fechas etc pero me dio flojera.
     FOREIGN KEY (numero_usuario) REFERENCES usuario(numero_usuario)
 );
 Insert into coches(Matricula, marca, modelo,anyo) values("9823POO",'Seat','Ibiza',2007);
