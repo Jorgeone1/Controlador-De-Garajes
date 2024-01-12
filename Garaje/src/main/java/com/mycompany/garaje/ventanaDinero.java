@@ -15,6 +15,7 @@ import java.awt.event.ActionListener;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -44,22 +45,25 @@ public class ventanaDinero extends JFrame {
         this.posicion = parkings;
         this.listaL = j;
         this.paneles = paneles;
+        //ajustes del JFrame
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();//comprueba el tamaño de la pantalla
         double width = screenSize.getWidth();//los guardo en variables
         double height = screenSize.getHeight();
         setBounds((int) (width / 3), (int) (height / 3), 450, 400);
         setResizable(false);
         setLayout(new GridLayout(9, 2, 15, 15));
-
+        //componentes
         // Crear un JSpinner para la hora
         SpinnerDateModel spinnerModel = new SpinnerDateModel();
         JSpinner timeSpinner = new JSpinner(spinnerModel);
+            //configura los JSpinner
         SpinnerDateModel spinnerModel2 = new SpinnerDateModel();
         JSpinner timeSpinner2 = new JSpinner(spinnerModel2);
         JSpinner.DateEditor timeEditor = new JSpinner.DateEditor(timeSpinner, "HH:mm:ss");
         timeSpinner.setEditor(timeEditor);
         JSpinner.DateEditor timeEditor2 = new JSpinner.DateEditor(timeSpinner2, "HH:mm:ss");
         timeSpinner2.setEditor(timeEditor2);
+        
         JTextField jf1 = new JTextField();
         JTextField jf2 = new JTextField();
         JTextField jf3 = new JTextField();
@@ -92,42 +96,55 @@ public class ventanaDinero extends JFrame {
         add(boton3);
         boton1.setEnabled(false);
         jf5.setText(usuarios.toString());
+        //acciones del boton 1
         boton1.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String pattern = "[0-9]{8}[A-Za-z]{1}";
+                String pattern = "[0-9]{8}[A-Za-z]{1}";//regex para comprobar el dni
                 Pattern pattern1 = Pattern.compile(pattern);
                 
+                //recoger los datos de los textfield
                 String DNI = jf1.getText();
                 String numero_tarjeta = jf2.getText();
                 SimpleDateFormat formatoHora = new SimpleDateFormat("HH:mm:ss");
-                
+                //convierte en date las dos horas inicio y final
                 Date horaInicio = (Date) timeSpinner.getValue();
                 String shi = formatoHora.format(horaInicio);
 
                 Date horaFinal = (Date) timeSpinner2.getValue();
                 String shf = formatoHora.format(horaFinal);
                 double dineroCliente =0;
-                
+                //comprueba que no este vacio y contenga caracteres
                 try{
                 dineroCliente = Double.parseDouble(jf4.getText());
                 }catch(NumberFormatException es){
                     
                 }
-                double dineroApagar=dineroApagar= Double.parseDouble(jf3.getText());
+                
+                double dineroApagar= Double.parseDouble(jf3.getText());
                 double resto = 0;
                 Matcher m = pattern1.matcher(DNI);
+                //comprueba que esten bien los datos
                 if(m.matches()){
-                    if(dineroCliente>=dineroApagar){
+                    if(dineroCliente>=dineroApagar){//Comprueba que el dinero que da la persona es mayor al importe
                         int elegir =JOptionPane.showConfirmDialog(null, "¿Está seguro de que desea continuar con esta acción?");
                         if(elegir==JOptionPane.YES_OPTION){
                         Statement stm = c1.Conectar();
                         
                         try {
+                            //calcula el resto y pone los decimales a 2
                             resto = dineroCliente-dineroApagar;
-                            resto = Math.round(resto*100)/100;
-                            stm.executeUpdate("insert into tiempoestancia(dni,numero_tarjeta,dia,horainicio,horafinal,importe,pagado,resto,numero_usuario) values ('"+DNI+"','"+numero_tarjeta+"',now(),'"+shi+"','"+shf+"',"+dineroApagar+","+dineroCliente+","+resto+","+2+")");
+                            resto = resto*100;
+                            resto = Math.round(resto);
+                            resto = resto/100;
+                            numero_tarjeta = numero_tarjeta.replace(" ","");
+                            if("".equals(numero_tarjeta) ||numero_tarjeta==null){
+                                numero_tarjeta = "Efectivo";
+                            }
+                            //ejecuta los inserts y update
+                            stm.executeUpdate("insert into tiempoestancia(dni,numero_tarjeta,dia,horainicio,horafinal,importe,pagado,resto,numero_usuario) values ('"+DNI+"','"+numero_tarjeta+"',now(),'"+shi+"','"+shf+"',"+dineroApagar+","+dineroCliente+","+resto+","+usuarios.getNumero_usuario()+")");
                             stm.executeUpdate("Update plazas_garaje set tipodeplaza = 'libre', onuse = false,matricula = null,numero_usuario = null where numero = " + parkings);
+                            //actualiza el menu para que se vean los cambios
                             listaL[parkings - 1].setText("libre");
                             CambiarColor(paneles, listaL[parkings - 1], parkings - 1);
                             ResultSet rs = stm.executeQuery("SELECT id FROM `tiempoestancia` order by id desc limit 1 ");
@@ -135,6 +152,7 @@ public class ventanaDinero extends JFrame {
                             while(rs.next()){
                                 indice = rs.getInt("id");
                             }
+                            //imprime la factura, una vez que le de a confirmar se cierra el JFrame
                             JOptionPane.showMessageDialog(null, "FACTURA\nLe sobra "+resto+"€\nSi quiere saber mas detalles de la factura\nmirelo en el menui principal en opcional arriba poniendo el codigo\nEl codigo de la factura es "+indice);
                             dispose();
                         } catch (SQLException ex) {
@@ -155,9 +173,10 @@ public class ventanaDinero extends JFrame {
                 }
             }
         });
+        //hace los calculos necesarios 
         boton2.addActionListener((ActionEvent e) -> {
             try {
-
+                //guarda el formato del modo de hora
                 SimpleDateFormat formatoHora = new SimpleDateFormat("HH:mm:ss");
 
                 Date horaInicio = (Date) timeSpinner.getValue();
@@ -165,28 +184,29 @@ public class ventanaDinero extends JFrame {
 
                 Date horaFinal = (Date) timeSpinner2.getValue();
                 String shf = formatoHora.format(horaFinal);
-
+                //cambia el hora a localTime porque es mas manejable y tiene mas metodos
                 LocalTime lhi = dateToLocalTime(horaInicio);
                 LocalTime lhf = dateToLocalTime(horaFinal);
 
                 double dinero = 0;
-                if (shi.equals(shf)) {
-                    dinero = dinero(24 * 60);
-                } else if (lhi.isBefore(lhf)) {
+                if (shi.equals(shf)) {//si es igual
+                    dinero = dinero(24 * 60);//cobra las 24 horas
+                } else if (lhi.isBefore(lhf)) {//si la hora inicial es anterior a la hora final
                     // Calcular la diferencia entre las dos horas
-                    Duration diferencia = Duration.between(lhi, lhf);
-                    long minutosDiferencia = diferencia.toMinutes();
-                    System.out.println(minutosDiferencia);
-                    dinero = dinero(minutosDiferencia);
-                } else {
-                    Duration diferencia = Duration.between(lhi, lhf);
-                    long minutosDiferencia = diferencia.toMinutes();
-                    minutosDiferencia += 24 * 60;
-                    dinero = dinero(minutosDiferencia);
+                    Duration diferencia = Duration.between(lhi, lhf);//calcula la diferencia
+                    long minutosDiferencia = diferencia.toMinutes();// lo convierte en minutos
+                    dinero = dinero(minutosDiferencia);//calcula el dinero
+                } else {//si es posterior,
+                    Duration diferencia = Duration.between(lhi, lhf);//recoge la diferencia en negativo
+                    long minutosDiferencia = diferencia.toMinutes();//lo convierte en minutos
+                    minutosDiferencia += 24 * 60;//y le resta 24 horas
+                    dinero = dinero(minutosDiferencia);//calcula el dinero
 
                 }
+                //redondea 2 decimales
                 dinero = Math.round(dinero * 100.0) / 100.0;
-                jf3.setText(dinero + "");
+                jf3.setText(dinero + "");//imprime el texto en el textField
+                //activa los botones
                 timeSpinner.setEnabled(false);
                 timeSpinner2.setEnabled(false);
                 boton1.setEnabled(true);
@@ -198,6 +218,7 @@ public class ventanaDinero extends JFrame {
                 JOptionPane.showMessageDialog(null,"Error en el formato o el contenido de las horas");
             }
         });
+        //vuelve a la posicion de poner fecha por si se equivoca el cliente
         boton3.addActionListener((ActionEvent e) -> {
 
             timeSpinner.setEnabled(true);
@@ -212,7 +233,11 @@ public class ventanaDinero extends JFrame {
         });
 
     }
-
+    /**
+     * Calcula el dinero del tiempo que ha estado en el garaje.
+     * @param minutos cantidad de minutos que estuvo el coche
+     * @return devuelve un double con el dinero
+     */
     public double dinero(long minutos) {
         double dinero = 0;
         if (minutos <= 30) {
