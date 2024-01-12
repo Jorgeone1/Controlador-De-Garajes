@@ -16,9 +16,7 @@ public class prueba {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        ArrayList<Usuario> us = new ArrayList<>();
-        ventanaDinero frame = new ventanaDinero(us,1);  
-        frame.setVisible(true);
+       Usuario us = new Usuario(1,"","");
     }
     
 }

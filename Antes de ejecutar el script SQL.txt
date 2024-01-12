@@ -1,0 +1,2 @@
+Puse DROP DATABASE IF EXISTS garaje, por lo que si tienes alguna base de datos igual se eliminara y sustituira por esta
+Es para que lo tengas en cuenta por si acaso y elimine una base de datos que aun estes corrigiendo.

@@ -1,3 +1,4 @@
+DROP DATABASE IF EXISTS Garaje;
 create database Garaje;
 use Garaje;
 Create table coches(
@@ -30,8 +31,12 @@ CREATE TABLE TiempoEstancia (
     numero_usuario integer,
     dni varchar(10),
     numero_tarjeta varchar(30),
+    dia date,
+    horainicio time,
+    horafinal time,
     importe float,
     pagado float,
+    resto float,
     FOREIGN KEY (numero_usuario) REFERENCES usuario(numero_usuario)
 );
 Insert into coches(Matricula, marca, modelo,anyo) values("9823POO",'Seat','Ibiza',2007);
@@ -48,9 +53,9 @@ insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Alex','
 insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Arvid','Sharma Garcia','28-8-1954','9123EST');
 insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Jonas','Ginsberg','01-1-1969','1234UIO');
 insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Luis','Alberto','30-5-1969','5432MNB');
-insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Jonas','Ginsberg','10-4-1999','L123POH');
+insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Jonas','Ginsberg','10-4-1999','7654JGH');
 insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Vilcabaro','Triper','23-4-2000','UI765421');
-insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Jonas','Ginsberg','5-8-1980','5432MNB');
+insert into usuario(nombre,apellidos,fecha_nacimiento,Matricula) values('Jonas','Ginsberg','5-8-1980','H123AS');
 
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (1, 'reservada',true);
 INSERT INTO Plazas_Garaje (Numero, TipoDePlaza,onuse) VALUES (2, 'reservada',true);

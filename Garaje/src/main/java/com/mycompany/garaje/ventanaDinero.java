@@ -4,6 +4,7 @@
  */
 package com.mycompany.garaje;
 
+import static com.mycompany.garaje.panel.CambiarColor;
 import com.toedter.calendar.JDateChooser;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -11,6 +12,9 @@ import java.awt.HeadlessException;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -19,6 +23,8 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.*;
 import javax.swing.*;
 
@@ -28,12 +34,16 @@ import javax.swing.*;
  */
 public class ventanaDinero extends JFrame {
 
-    Conectar c1 = new Conectar();
-    ArrayList<Usuario> usuarios;
-    int posicion;
-
-    public ventanaDinero(ArrayList<Usuario> usuarios, int parkings) throws HeadlessException {
+    private Conectar c1 = new Conectar();
+    private Usuario usuarios;
+    private int posicion;
+    private JLabel[] listaL;
+    private JPanel[] paneles;
+    public ventanaDinero(Usuario usuarios, int parkings,JLabel[] j,JPanel[] paneles) throws HeadlessException {
         this.usuarios = usuarios;
+        this.posicion = parkings;
+        this.listaL = j;
+        this.paneles = paneles;
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();//comprueba el tamaño de la pantalla
         double width = screenSize.getWidth();//los guardo en variables
         double height = screenSize.getHeight();
@@ -81,24 +91,68 @@ public class ventanaDinero extends JFrame {
         add(boton2);
         add(boton3);
         boton1.setEnabled(false);
-        boton1.addActionListener((ActionEvent e) -> {
-            String pattern = "[0-9]{8}[A-Za-z]{1}";
-            Pattern pattern1 = Pattern.compile(pattern);
-            
-            String DNI = jf1.getText();
-            String numero_tarjeta = jf2.getText();
-            double dineroCliente = Double.parseDouble(jf4.getText());
-            double dineroApagar = Double.parseDouble(jf3.getText());
-            double resto = 0;
-            Matcher m = pattern1.matcher(DNI);
-            if(m.matches()){
-                if(dineroCliente>dineroApagar){
-                    resto = dineroCliente-dineroApagar;
-                }else{
-                    JOptionPane.showMessageDialog(null, "El dinero que aportas es menor que el dinero que debes");
+        jf5.setText(usuarios.toString());
+        boton1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String pattern = "[0-9]{8}[A-Za-z]{1}";
+                Pattern pattern1 = Pattern.compile(pattern);
+                
+                String DNI = jf1.getText();
+                String numero_tarjeta = jf2.getText();
+                SimpleDateFormat formatoHora = new SimpleDateFormat("HH:mm:ss");
+                
+                Date horaInicio = (Date) timeSpinner.getValue();
+                String shi = formatoHora.format(horaInicio);
+
+                Date horaFinal = (Date) timeSpinner2.getValue();
+                String shf = formatoHora.format(horaFinal);
+                double dineroCliente =0;
+                
+                try{
+                dineroCliente = Double.parseDouble(jf4.getText());
+                }catch(NumberFormatException es){
+                    
                 }
-            }else{
-                JOptionPane.showMessageDialog(null,"El dni no tiene el formato correcto.");
+                double dineroApagar=dineroApagar= Double.parseDouble(jf3.getText());
+                double resto = 0;
+                Matcher m = pattern1.matcher(DNI);
+                if(m.matches()){
+                    if(dineroCliente>=dineroApagar){
+                        int elegir =JOptionPane.showConfirmDialog(null, "¿Está seguro de que desea continuar con esta acción?");
+                        if(elegir==JOptionPane.YES_OPTION){
+                        Statement stm = c1.Conectar();
+                        
+                        try {
+                            resto = dineroCliente-dineroApagar;
+                            resto = Math.round(resto*100)/100;
+                            stm.executeUpdate("insert into tiempoestancia(dni,numero_tarjeta,dia,horainicio,horafinal,importe,pagado,resto,numero_usuario) values ('"+DNI+"','"+numero_tarjeta+"',now(),'"+shi+"','"+shf+"',"+dineroApagar+","+dineroCliente+","+resto+","+2+")");
+                            stm.executeUpdate("Update plazas_garaje set tipodeplaza = 'libre', onuse = false,matricula = null,numero_usuario = null where numero = " + parkings);
+                            listaL[parkings - 1].setText("libre");
+                            CambiarColor(paneles, listaL[parkings - 1], parkings - 1);
+                            ResultSet rs = stm.executeQuery("SELECT id FROM `tiempoestancia` order by id desc limit 1 ");
+                            int indice = 0;
+                            while(rs.next()){
+                                indice = rs.getInt("id");
+                            }
+                            JOptionPane.showMessageDialog(null, "FACTURA\nLe sobra "+resto+"€\nSi quiere saber mas detalles de la factura\nmirelo en el menui principal en opcional arriba poniendo el codigo\nEl codigo de la factura es "+indice);
+                            dispose();
+                        } catch (SQLException ex) {
+                            Logger.getLogger(ventanaDinero.class.getName()).log(Level.SEVERE, null, ex);
+                        }finally{
+                            try {
+                                stm.close();
+                            } catch (SQLException ex) {
+                                Logger.getLogger(ventanaDinero.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                        }
+                    }else{
+                        JOptionPane.showMessageDialog(null, "El dinero que aportas es menor que el dinero que debes");
+                    }
+                }else{
+                    JOptionPane.showMessageDialog(null,"El dni no tiene el formato correcto.");
+                }
             }
         });
         boton2.addActionListener((ActionEvent e) -> {

@@ -17,6 +17,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.sql.SQLSyntaxErrorException;
 import java.sql.Statement;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -79,6 +80,14 @@ public class panel extends JPanel {
         JMenuItem item3 = new JMenuItem("Mostrar Plazas Libres");
         menu2.add(item3);
         bar.add(menu2);
+        JMenu menu3 = new JMenu("Opcional");
+        JMenuItem item4 = new JMenuItem("Importe Total");
+        JMenuItem item5 = new JMenuItem("Total Pagados");
+        JMenuItem item6 = new JMenuItem("Factura");
+        menu3.add(item4);
+        menu3.add(item5);
+        menu3.add(item6);
+        bar.add(menu3);
         JPanel arriba = new JPanel(new FlowLayout(FlowLayout.CENTER));
         arriba.add(bar);
         JPanel medium = new JPanel(new GridLayout(2, 10, 10, 10));
@@ -90,6 +99,7 @@ public class panel extends JPanel {
             while (listaPlazasGaraje.next()) {
                 listaNombress.add(listaPlazasGaraje.getString("tipodeplaza"));
             }
+            stm5.close();
         } catch (SQLException ex) {
 
         }
@@ -233,7 +243,7 @@ public class panel extends JPanel {
                                         Statement stm = c.createStatement();
                                         stm.executeUpdate("Insert into Coches(Matricula,marca,modelo,anyo) values('" + numeroCoche + "','" + numeroMarca + "','" + numeroModelo + "'," + numeroAnyo + ")");
                                         JOptionPane.showMessageDialog(null, "Se introducio correctamente el coche");
-                                        jf.setVisible(false);
+                                        jf.dispose();
                                         jf1.setText("");
                                         jf2.setText("");
                                         jf3.setText("");
@@ -283,10 +293,12 @@ public class panel extends JPanel {
                 }
                 String linea = "";
                 ResultSet rs1 = stm1.executeQuery("select * from coches");
-
+                
                 while (rs1.next()) {
                     lista.add(new Coches(rs1.getString("matricula"), rs1.getString("marca"), rs1.getString("modelo"), rs1.getInt("anyo")));
                 }
+                stm1.close();
+                c1.close();
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -357,7 +369,7 @@ public class panel extends JPanel {
                                             jf3.setText("");
                                             jf4.setText("");
                                             jf5.setSelectedIndex(-1);
-                                            jf.setVisible(false);
+                                            jf.dispose();
                                             stm.close();
                                             c.close();
                                         } catch (SQLException ex) {
@@ -425,9 +437,7 @@ public class panel extends JPanel {
                 while (rs2.next()) {
                     usuarioSinParking.add(new Usuario(rs2.getInt("numero_usuario"), rs2.getString("nombre") + " " + rs2.getString("apellidos"), rs2.getString("Matricula")));
                 }
-                for (Usuario s : usuarioSinParking) {
-                    System.out.println(s);
-                }
+               
                 ResultSet rs3 = stm1.executeQuery("select * from usuario where Matricula not in(Select Matricula from plazas_garaje where Matricula is not null);");
                 while (rs3.next()) {
                     usuario.add(new Usuario(rs3.getInt("numero_usuario"), rs3.getString("nombre") + " " + rs3.getString("apellidos"), rs3.getString("Matricula")));
@@ -521,19 +531,17 @@ public class panel extends JPanel {
 
                         Statement stm1 = c10.Conectar();
                         ResultSet rs = stm1.executeQuery("Select numero from plazas_garaje where matricula = '" + usuarioSinParking.get(resultado).getMatricula() + "'");
+                        
                         int parkings = 0;
                         while (rs.next()) {
                             parkings = rs.getInt("numero");
                         }
-                        int confirmarSacar = JOptionPane.showConfirmDialog(null, "Deseas liberar el aparcamiento" + parkings + " del coche " + usuarioSinParking.get(resultado).getMatricula());
+                        stm1.close();
+                        int confirmarSacar = JOptionPane.showConfirmDialog(null, "Deseas liberar el aparcamiento " + parkings + " del coche " + usuarioSinParking.get(resultado).getMatricula());
                         if (confirmarSacar == JOptionPane.YES_OPTION) {
                             //datos para preparar poner la hora en la tabla
-                            ventanaDinero frame = new ventanaDinero(usuarioSinParking,parkings);  
-                                stm1.executeUpdate("Update plazas_garaje set tipodeplaza = 'libre', onuse = false,matricula = null,numero_usuario = null where numero = " + parkings);
-                                listaLineas[parkings - 1].setText("libre");
-                                CambiarColor(listaPaneles, listaLineas[parkings - 1], parkings - 1);
-                                stm1.close();
-                            
+                            ventanaDinero frame = new ventanaDinero(usuarioSinParking.get(resultado),parkings,listaLineas,listaPaneles);  
+                            frame.setVisible(true);
                             
                         }
                     } catch (SQLException ex) {
@@ -553,10 +561,9 @@ public class panel extends JPanel {
 
         item1.addActionListener((ActionEvent e) -> {
             try {
-                Connection connection = DriverManager.getConnection(url, username, password);
                 //comando que enviara
                 String select = "select usuario.nombre as name, usuario.apellidos as apellido from usuario inner join coches on coches.matricula = usuario.matricula where coches.matricula = '9823POO'";
-                Statement stm = connection.createStatement();
+                Statement stm = c10.Conectar();
                 ResultSet rs = stm.executeQuery(select);
                 String texto = "Los usuarios que usan ibiza son:\n";
 
@@ -564,16 +571,16 @@ public class panel extends JPanel {
                     texto += rs.getString("name") + " " + rs.getString("apellido") + "\n";
                 }
                 JOptionPane.showMessageDialog(null, texto);
+                stm.close();
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
         item2.addActionListener((ActionEvent e) -> {
             try {
-                Connection connection = DriverManager.getConnection(url, username, password);
                 //comando que enviara
                 String select = "select coches.matricula as num, coches.modelo as modelo from coches inner join usuario on  usuario.matricula = coches.matricula where coches.matricula = '1234UIO'";
-                Statement stm = connection.createStatement();
+                Statement stm = c10.Conectar();
                 ResultSet rs = stm.executeQuery(select);
                 String texto = "Los usuarios que usan ibiza son:\n";
 
@@ -581,16 +588,16 @@ public class panel extends JPanel {
                     texto += rs.getString("num") + " " + rs.getString("modelo") + "\n";
                 }
                 JOptionPane.showMessageDialog(null, texto);
+                stm.close();
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
         });
         item3.addActionListener((ActionEvent e) -> {
             try {
-                Connection connection = DriverManager.getConnection(url, username, password);
                 //comando que enviara
                 String select = "select count(TipoDePlaza) as libre from plazas_garaje where tipodeplaza = 'libre'";
-                Statement stm = connection.createStatement();
+                Statement stm = c10.Conectar();
                 ResultSet rs = stm.executeQuery(select);
                 String texto = "La cantidad de plazas libres hay es :";
 
@@ -598,6 +605,68 @@ public class panel extends JPanel {
                     texto += rs.getInt("libre");
                 }
                 JOptionPane.showMessageDialog(null, texto);
+                stm.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        item4.addActionListener((ActionEvent e) -> {
+            try {
+                
+                //comando que enviara
+                String select = "select sum(importe) as total from tiempoestancia;";
+                Statement stm = c10.Conectar();
+                ResultSet rs = stm.executeQuery(select);
+                String texto = "El importe total conseguido es:";
+
+                while (rs.next()) {//los coge y luego los imprime
+                    texto += rs.getFloat("total");
+                }
+                JOptionPane.showMessageDialog(null, texto);
+                stm.close();
+            } catch (SQLException ex) {
+                Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        item5.addActionListener((ActionEvent e) -> {
+            try {
+                Connection connection = DriverManager.getConnection(url, username, password);
+                //comando que enviara
+                String select = "select count(id) as total from tiempoestancia;";
+                Statement stm = connection.createStatement();
+                ResultSet rs = stm.executeQuery(select);
+                String texto = "La cantidad de personas que han pagado es: ";
+                
+                while (rs.next()) {//los coge y luego los imprime
+                    texto += rs.getInt("total");
+                }
+                JOptionPane.showMessageDialog(null, texto);
+            } catch (SQLException ex) {
+                Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+        item6.addActionListener((ActionEvent e) -> {
+            try {
+                Connection connection = DriverManager.getConnection(url, username, password);
+                //comando que enviara
+                String select = "select * from tiempoestancia inner join usuario on usuario.numero_usuario = tiempoestancia.numero_usuario where tiempoestancia.id = ";
+                String numero = JOptionPane.showInputDialog(null,"Pon su numero de factura");
+                Statement stm = connection.createStatement();
+                ResultSet rs = stm.executeQuery(select+numero);
+                String texto = "Factura\n";
+                ArrayList<String> comprobar = new ArrayList<>();
+                while (rs.next()) {//los coge y luego los imprime
+                    comprobar.add(rs.getString("fecha_nacimiento"));
+                    texto += "ID Factura: "+rs.getInt("ID")+"\nDNI: "+rs.getString("DNI")+"\nNombre completo: "+rs.getString("nombre")+" "+ rs.getString("apellidos")+"\nMatricula: "+rs.getString("matricula") +"\nDia "+rs.getDate("dia")+"\nhora entrada: "+rs.getTime("horainicio")+"\nhora salida: "+rs.getTime("horafinal")+"\nImporte: "+rs.getFloat("importe")+"\nAportado "+rs.getFloat("pagado")+"\nResto: "+rs.getFloat("resto");
+                }
+                if(!comprobar.isEmpty()){
+                    JOptionPane.showMessageDialog(null, texto);
+                }else{
+                    JOptionPane.showMessageDialog(null, "No existe la factura con ID "+numero);
+                }
+                
+            }catch(SQLSyntaxErrorException io){
+                JOptionPane.showMessageDialog(null, "Error no existe esa factura");
             } catch (SQLException ex) {
                 Logger.getLogger(panel.class.getName()).log(Level.SEVERE, null, ex);
             }
